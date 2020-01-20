@@ -1,0 +1,29 @@
+select 
+a.AKA AS "AKA", 
+(t.alternatekeyprefix + '-' + T.ALTERNATEKEYSUFFIX) AS "Ticket Number", 
+t.URGENCYDESC AS "Urgency", 
+CASE WHEN sc.seccodedesc IN ('Mulder, Coenraad', 'dev.mopro','Welch, Ben', 'Higgs, Stephen', 'DevSupport.mp', 'DevSupport.Coresoft') THEN 'R&D'
+     WHEN sc.seccodedesc IN ('PSD.CustDev', 'Gibson, Roger', 'Shaw, David', 'Winton, Jason', 'psd.allocation', 'Edwards, Matthew', 'Hauser, Isaac', 'psd.coresoft', 'Gendy, Emad', 'Marnell, Donna') then 'Professional Services'
+     WHEN sc.seccodedesc IN ('Kirkwood, Jonathan', 'Teong, Deric', 'Ramteke, Manasi', 'support.MomentumPro', 'support.coresoft') then 'Support Services'
+     WHEN sc.seccodedesc in ('Fay, Jason', 'Quach, John') THEN 'Technical Services'
+            END AS Team,
+
+sc.SECCODEDESC AS "Assigned To", 
+t.CATEGORy AS "Category", 
+t.ISSUE AS "Issue", 
+t.CREATEDATE AS "Create Date", 
+pl.text AS "Status",
+t.SUBJECT AS "Subject", 
+tp.notes as "Ticket Notes"
+
+FROM ticket t
+
+LEFT JOIN account a ON t.ACCOUNTID = a.ACCOUNTID
+LEFT JOIN seccode sc ON t.ASSIGNEDTOID = sc.SECCODEID 
+LEFT JOIN PICKLIST pl ON t.STATUSCODE = pl.ITEMID
+LEFT JOIN ticketproblem tp on t.ticketid = tp.ticketid
+
+WHERE 
+a.aka = {{aka}}
+
+order by "Create Date" desc 
